@@ -1,6 +1,6 @@
 # Experimentation and Evaluation in Machine Learning at University of Kassel FB16 - Personal Solutions
 
-This repository contains personal solutions for the course *Experimentation and Evaluation in Machine Learning* (E2ML) of the 'Intelligent Embedded Systems' (IES) department at the University of Kassel FB16 in the sommer term of 2023.
+This repository contains personal solutions for the course *Experimentation and Evaluation in Machine Learning* (E2ML) of the *Intelligent Embedded Systems* (IES) department at the University of Kassel FB16 in the sommer term of 2023.
 
 ### Table of Contents
 
