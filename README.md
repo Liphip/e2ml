@@ -36,8 +36,10 @@ These solutions are for reference only and should not be copied or submitted as 
     - `preprocessing`: Python package of data preprocessing functions
     - `simulation`: Python package to execute experiments
 - `notebooks`: directory of Jupyter notebooks with example code
-    - `tutorial_python_solutation.ipynb`: introduction into Python including 
+    - [`01_python_introduction.ipynb`](notebooks/01_python_introduction.ipynb): First Exercise - Introduction into Python including 
       important modules, such as, NumPy, SciPy, and Scikit-learn
+   - [`02_foundations_of_stochastic.ipynb`](notebooks/02_foundations_of_stochastic.ipynb): Second Exercise - Foundations of Stochastic including 
+      discete and continuous probabilities and probability rules
 - `LICENSE`: information about the terms under which one can use this package
 - `setup.py`: Python file to install the project's package
 
