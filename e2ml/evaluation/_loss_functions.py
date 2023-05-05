@@ -24,8 +24,7 @@ def zero_one_loss(y_true, y_pred):
     y_pred = column_or_1d(y_pred)
 
     # Compute and return the empirical risk.
-    # TODO 
-
+    return np.mean(y_true != y_pred)
 
 def binary_cross_entropy_loss(y_true, y_pred):
     """
@@ -43,12 +42,13 @@ def binary_cross_entropy_loss(y_true, y_pred):
     risk : float in [0, +infinity]
         Empirical risk computed via the BCE loss function.
     """
-    y_true = column_or_1d(y_true, dtype=float)
-    y_pred = column_or_1d(y_pred, dtype=float)
+    y_true = column_or_1d(y_true)
+    y_pred = column_or_1d(y_pred)
 
     # Check value ranges of probabilities and raise ValueError if the ranges are invalid. In this case, it should be
     # allowed to have estimated probabilities in the interval [0, 1] instead of only (0, 1).
-    # TODO 
-
+    if np.any(y_true < 0) or np.any(y_true > 1) or np.any(y_pred < 0) or np.any(y_pred > 1):
+        raise ValueError("Invalid probability value range detected. Expected probabilities in the interval [0, 1].")
+    
     # Compute and return the empirical risk.
-    # TODO 
+    return np.mean(xlogy(-y_true, y_pred) - xlogy(1 - y_true, 1 - y_pred))

@@ -58,16 +58,18 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
         check_consistent_length(X, y)
 
         # Fit `LabelEncoder` object as `self.label_encoder_`.
-        # TODO 
+        self.label_encoder_ = LabelEncoder()
+        self.label_encoder_.fit(y)
 
         # Raise `ValueError` if there are more than two classes.
-        # TODO 
+        if len(self.label_encoder_.classes_) > 2:
+            raise ValueError("Only binary classification is supported.")
 
         # Transform `self.y_` using the fitted `self.label_encoder_`.
-        # TODO 
+        self.y_ = self.label_encoder_.transform(y)
 
         # Initialize weights `w0`.
-        # TODO 
+        w0 = np.zeros(X.shape[1])
 
         def loss_func(w):
             """
@@ -83,26 +85,28 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
                 Evaluated (scaled) loss.
             """
             # Compute predictions for given weights.
-            # TODO 
+            y_pred = expit(X @ w)
 
             # Compute binary cross entropy loss including regularization.
-            # TODO 
+            loss = binary_cross_entropy_loss(y, y_pred)
+
             loss += 0.5 * len(X)**(-1) * self.lmbda * w.T @ w
 
             return loss
 
         def gradient_func(w):
             # Compute predictions for given weights.
-            # TODO 
+            y_pred = expit(X @ w)
 
             # Compute gradient.
-            # TODO 
+            gradient = len(X)**(-1) * np.sum((y_pred - self.y_)[:, np.newaxis] * X, axis=0)
+            gradient += self.lmbda * w
 
             return gradient
 
         # Use `scipy.optimize.minimize` with `BFGS` as `method` to optimize the loss function and store the result as
         # `self.w_`
-        # TODO 
+        self.w_ = minimize(loss_func, w0, method='BFGS', jac=gradient_func, options={'maxiter': self.maxiter}).x
 
         return self
 
@@ -125,7 +129,8 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
         self._check_n_features(X, reset=False)
 
         # Estimate and return conditional class probabilities.
-        # TODO 
+        y_pred = expit(X @ self.w_)
+        P = np.column_stack((1 - y_pred, y_pred))
         return P
 
     def predict(self, X):
@@ -143,9 +148,9 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
             Predicted class labels class.
         """
         # Predict class labels `y`.
-        # TODO 
+        y_pred = self.predict_proba(X).argmax(axis=1)
 
         # Re-transform predicted labels using `self.label_encoder_`.
-        # TODO 
+        y = self.label_encoder_.inverse_transform(y_pred)
 
         return y
