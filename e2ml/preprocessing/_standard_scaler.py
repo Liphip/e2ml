@@ -34,10 +34,10 @@ class StandardScaler(BaseEstimator):
         X = np.array(X)
 
         # Compute `self.mu_` containing the mean value for each feature in the training set.
-        # TODO 
+        self.mu_ = np.mean(X, axis=0)
 
-        # Compute `self.mu_` containing the standard deviations for each feature in the training set.
-        # TODO 
+        # Compute `self.sigma_` containing the standard deviations for each feature in the training set.
+        self.sigma_ = np.std(X, axis=0)
 
         return self
 
@@ -59,7 +59,7 @@ class StandardScaler(BaseEstimator):
         X = np.array(X)
 
         # Standardize data by computing `Z`.
-        # TODO 
+        Z = np.nan_to_num((X - self.mu_) / self.sigma_)
 
         return Z
 
@@ -81,6 +81,6 @@ class StandardScaler(BaseEstimator):
         Z = np.array(Z)
 
         # Re-scale samples to original space by computing `X`.
-        # TODO 
+        X = Z * self.sigma_ + self.mu_
 
         return X
