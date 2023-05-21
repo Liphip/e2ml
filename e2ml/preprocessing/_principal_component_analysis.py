@@ -117,9 +117,10 @@ class PrincipalComponentAnalysis(BaseEstimator):
         if self.n_components >= 1:
             # If `n_components` is an integer, the number `self.n_components_` of selected dimension will
             # be reduced from `n_features` to `n_components`.
-            if not isinstance(self.n_components, int):
-                raise ValueError('`n_components` must be an integer if `n_components` >= 1.')
-            self.n_components_ = int(self.n_components)
+            try:
+                self.n_components_ = int(self.n_components)
+            except ValueError:
+                raise ValueError(f'`n_components` must be an integer if `n_components` >= 1. `n_components` = {self.n_components}')
             return
         elif 0 < self.n_components < 1:
             # If `0 < n_components < 1`,  select the number `self.n_components_` of components such
