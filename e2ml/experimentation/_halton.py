@@ -22,7 +22,16 @@ def van_der_corput_sequence(n_max, base=2):
     check_scalar(n_max, name="n_max", target_type=int, min_val=1)
     check_scalar(base, name="base", target_type=int, min_val=2)
 
-    # TODO 
+    sequence = []
+    for i in range(1, n_max + 1):
+        n_th_num, denom = 0.0, 1.0
+        while i > 0:
+            i, remainder = divmod(i, base)
+            denom *= base
+            n_th_num += remainder / denom
+        sequence.append(n_th_num)
+        
+    return np.array(sequence)
 
 
 def primes_from_2_to(n_max):
@@ -41,7 +50,8 @@ def primes_from_2_to(n_max):
     # Check parameters.
     check_scalar(n_max, name="n_max", target_type=int, min_val=2)
 
-    # TODO 
+    prime_numbers = [p for p in range(2, n_max + 1) if 0 not in [p % d for d in range(2, int(np.sqrt(p)) + 1)]]
+    return prime_numbers
 
 
 def halton_unit(n_samples, n_dimensions):
@@ -63,7 +73,17 @@ def halton_unit(n_samples, n_dimensions):
     check_scalar(n_samples, name="n_samples", target_type=int, min_val=1)
     check_scalar(n_dimensions, name="n_dimensions", target_type=int, min_val=1)
 
-    # TODO 
+    # Generate primes with the number of primes equal to the number of dimensions.
+    primes = []
+    num = n_dimensions
+    while len(primes) < n_dimensions:
+        primes = primes_from_2_to(num)
+        num *= 10
+
+    primes = primes[:n_dimensions]
+
+    X = [van_der_corput_sequence(n_samples, base=p) for p in primes]
+    return np.array(X).T
 
 
 def halton(n_samples, n_dimensions, bounds=None):
@@ -95,4 +115,6 @@ def halton(n_samples, n_dimensions, bounds=None):
         bounds = np.zeros((n_dimensions, 2))
         bounds[:, 1] = 1
 
-    # TODO 
+    X = halton_unit(n_samples, n_dimensions)
+    X = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * X
+    return np.array(X)

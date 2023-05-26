@@ -50,4 +50,7 @@ def full_fac(levels):
                [ 0.,  3.,  2.],
                [ 1.,  3.,  2.]])
     """
-    # TODO 
+    # Previously implemented in _own_doe_method.py as it was not yet known
+    X = np.array(np.meshgrid(*[np.arange(0, level) for level in levels])).T.reshape(-1, len(levels))
+
+    return X.astype(int)
