@@ -8,7 +8,6 @@ from sklearn.utils import check_scalar, check_array
 
 
 def lat_hyp_cube_unit(n_samples, n_dimensions):
-
    """
    Generate a latin-hypercube design
 
@@ -33,7 +32,8 @@ def lat_hyp_cube_unit(n_samples, n_dimensions):
 
 
 def lat_hyp_cube(n_samples, n_dimensions, bounds=None):
-   """Generate a specified number of samples according to a Latin hypercube in a user-specified bounds.
+   """
+   Generate a specified number of samples according to a Latin hypercube in a user-specified bounds.
 
    Parameters
    ----------
