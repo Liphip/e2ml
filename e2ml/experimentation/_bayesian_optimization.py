@@ -32,7 +32,9 @@ def acquisition_pi(mu, sigma, tau):
     check_consistent_length(mu, sigma)
 
     # Compute and return probability improvement as `pi_scores`.
-    # TODO 
+    z = (mu - tau) / sigma
+    pi_scores = norm.cdf(z)
+    return pi_scores
 
 
 def acquisition_ei(mu, sigma, tau):
@@ -60,7 +62,9 @@ def acquisition_ei(mu, sigma, tau):
     check_consistent_length(mu, sigma)
 
     # Compute and return probability improvement as `ei_scores`.
-    # TODO 
+    z = (mu - tau) / sigma
+    ei_scores = (mu - tau) * norm.cdf(z) + sigma * norm.pdf(z)
+    return ei_scores
 
 
 def acquisition_ucb(mu, sigma, kappa):
@@ -88,7 +92,8 @@ def acquisition_ucb(mu, sigma, kappa):
     check_consistent_length(mu, sigma)
 
     # Compute and return probability improvement as `ucb_scores`.
-    # TODO 
+    ucb_scores = mu + kappa * sigma
+    return ucb_scores
 
 
 def perform_bayesian_optimization(X_cand, gpr, acquisition_func, obj_func, n_evals, n_random_init):
@@ -136,4 +141,7 @@ def perform_bayesian_optimization(X_cand, gpr, acquisition_func, obj_func, n_eva
     )
 
     # Perform Bayesian optimization until `n_evals` have been performed.
-    # TODO 
+    X_acquired = []
+    y_acquired = []
+    #for i in range(n_evals):
+    #    
