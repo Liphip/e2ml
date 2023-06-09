@@ -96,7 +96,7 @@ def acquisition_ucb(mu, sigma, kappa):
     return ucb_scores
 
 
-def perform_bayesian_optimization(X_cand, gpr, acquisition_func, obj_func, n_evals, n_random_init):
+def perform_bayesian_optimization(X_cand, gpr, acquisition_func, obj_func, n_evals, n_random_init, random_state=42):
     """
     Perform Bayesian optimization according to a specified acquisition function for given Gaussian
     process model, objective function, and maximum number of function evaluations.
@@ -141,7 +141,43 @@ def perform_bayesian_optimization(X_cand, gpr, acquisition_func, obj_func, n_eva
     )
 
     # Perform Bayesian optimization until `n_evals` have been performed.
+    rand_state = np.random.RandomState(random_state)
+    X_cand_is_acquired = np.zeros(len(X_cand), dtype=bool)
     X_acquired = []
     y_acquired = []
-    #for i in range(n_evals):
-    #    
+    
+    # n_random_init
+    random_selected_idx = rand_state.choice(len(X_cand), size=n_random_init)
+    X_cand_is_acquired[random_selected_idx] = True
+    [X_acquired.append(X_cand[idx]) for idx in random_selected_idx]
+    [y_acquired.append(obj_func(X_cand[idx])) for idx in random_selected_idx]
+
+    # n_evals
+    for _ in range(n_random_init, n_evals):
+        # fit gpr
+        gpr.fit(X_acquired, y_acquired)
+
+        # predict
+        mu, sigma = gpr.predict(X_cand[~X_cand_is_acquired], return_std=True)
+        
+        # compute tau
+        tau = np.max(y_acquired)
+        
+        # evaluate acquisition function
+        scores = []
+        if acquisition_func == 'pi':
+            scores = acquisition_pi(mu, sigma, tau)
+        elif acquisition_func == 'ei':
+            scores = acquisition_ei(mu, sigma, tau)
+        elif acquisition_func == 'ucb':
+            scores = acquisition_ucb(mu, sigma, kappa=float(random_state))
+        
+        # find candidates according to acq func score
+        acq_func_selected_idx = np.argmax(scores)
+        
+        # append lists
+        X_cand_is_acquired[acq_func_selected_idx] = True
+        X_acquired.append(X_cand[acq_func_selected_idx])
+        y_acquired.append(obj_func(X_cand[acq_func_selected_idx]))
+
+    return np.array(X_acquired), np.array(y_acquired)
