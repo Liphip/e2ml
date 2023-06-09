@@ -30,7 +30,47 @@ def confusion_matrix(y_true, y_pred, *, n_classes=None, normalize=None):
         Confusion matrix whose i-th row and j-th column entry indicates the number of amples with true label being
         i-th class and predicted label being j-th class.
     """
-    # TODO 
+    # Check input.
+    try:
+        y_true = column_or_1d(y_true)
+        y_pred = column_or_1d(y_pred)
+        #check_scalar(y_true, name='y_true', target_type=int)
+        #check_scalar(y_pred, name='y_pred', target_type=int)
+
+        if n_classes is None:
+            n_classes = int(max(np.max(y_true), np.max(y_pred)) + 1)
+        check_scalar(n_classes, name='n_classes', target_type=int)
+
+        if y_true.min() < 0 or y_true.max() >= n_classes:
+            raise ValueError(f'Invalid value in `y_true`: {y_true}. Expected values in the set {{0, ..., {n_classes-1}}}.')
+        if y_pred.min() < 0 or y_pred.max() >= n_classes:
+            raise ValueError(f'Invalid value in `y_pred`: {y_pred}. Expected values in the set {{0, ..., {n_classes-1}}}.')
+
+        check_consistent_length(y_true, y_pred)
+        if normalize is not None:
+            if normalize not in {'true', 'pred', 'all'}:
+                raise ValueError(f'Invalid value for `normalize`: {normalize}. Allowed values are: `true`, `pred`, `all`.')
+    except Exception as e:
+        if isinstance(e, ValueError):
+            raise e
+        raise ValueError(f'Invalid input: {e}')
+
+    # Compute confusion matrix.
+    C = np.zeros((n_classes, n_classes), dtype=int)
+
+    for i in range(n_classes):
+        for j in range(n_classes):
+            C[i, j] = np.sum((y_true == i) & (y_pred == j))
+
+    if normalize == 'true':
+        C = C / C.sum(axis=1, keepdims=True)
+    elif normalize == 'pred':
+        C = C / C.sum(axis=0, keepdims=True)
+    elif normalize == 'all':
+        C = C / C.sum()
+    C = np.nan_to_num(C)
+
+    return C
 
 
 def accuracy(y_true, y_pred):
@@ -48,7 +88,9 @@ def accuracy(y_true, y_pred):
     acc : float in [0, 1]
         Accuracy.
     """
-    # TODO 
+    # return 1 - zero_one_loss(y_true=y_true, y_pred=y_pred)
+    conf_mat = confusion_matrix(y_true=y_true, y_pred=y_pred)
+    return np.sum(np.diag(conf_mat)) / np.sum(conf_mat)
 
 
 def cohen_kappa(y_true, y_pred, n_classes=None):
@@ -109,4 +151,12 @@ def macro_f1_measure(y_true, y_pred, n_classes=None):
     macro_f1 : float in [0, 1]
         The marco f1 measure between 0 and 1.
     """
-    # TODO 
+    C = confusion_matrix(y_true=y_true, y_pred=y_pred, n_classes=n_classes)
+    n_classes = len(C)
+    f1 = np.zeros(n_classes)
+    for i in range(n_classes):
+        if C[i, :].sum() == 0 and C[:, i].sum() == 0:
+            f1[i] = 0.0
+        else:
+            f1[i] = 2 * C[i, i] / (C[i, :].sum() + C[:, i].sum())
+    return np.mean(f1)
