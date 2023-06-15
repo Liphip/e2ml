@@ -10,3 +10,4 @@ from ._bayesian_optimization import *
 from ._data_generator import *
 
 from ._own_doe_method import *
+from ._latin_hypercube_normal_dist import *
