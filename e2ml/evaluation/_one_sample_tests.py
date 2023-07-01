@@ -32,7 +32,27 @@ def z_test_one_sample(sample_data, mu_0, sigma, test_type="two-sided"):
     if test_type not in ["two-sided", "left-tail", "right-tail"]:
         raise ValueError("`test_type` must be in `['two-sided', 'left-tail', 'right-tail']`")
 
-    # TODO 
+    # empirical_mean
+    empirical_mean = np.mean(sample_data)
+
+    # sample_size
+    sample_size = len(sample_data)
+
+    # z_statistic
+    z_statistic = (empirical_mean - mu_0) / (sigma / np.sqrt(sample_size))
+
+    # p-value
+    p = None
+    p_left = stats.norm.cdf(z_statistic)
+    p_right = 1 - p_left
+    if test_type == "two-sided":
+        p = 2 * min(p_left, p_right)
+    elif test_type == "left-tail":
+        p = p_left
+    elif test_type == "right-tail":
+        p = p_right
+
+    return z_statistic, p
 
 
 def t_test_one_sample(sample_data, mu_0, test_type="two-sided"):
@@ -60,5 +80,28 @@ def t_test_one_sample(sample_data, mu_0, test_type="two-sided"):
     if test_type not in ["two-sided", "left-tail", "right-tail"]:
         raise ValueError("`test_type` must be in `['two-sided', 'left-tail', 'right-tail']`")
 
-    # TODO 
+    # empirical_mean
+    empirical_mean = np.mean(sample_data)
+
+    # empirical_std
+    empirical_std = np.std(sample_data, ddof=1)
+
+    # sample_size
+    sample_size = len(sample_data)
+
+    # t_statistic
+    t_statistic = (empirical_mean - mu_0) / (empirical_std / np.sqrt(sample_size))
+
+    # p-value
+    p = None
+    p_left = stats.t.cdf(t_statistic, df=sample_size - 1)
+    p_right = 1 - p_left
+    if test_type == "two-sided":
+        p = 2 * min(p_left, p_right)
+    elif test_type == "left-tail":
+        p = p_left
+    elif test_type == "right-tail":
+        p = p_right
+
+    return t_statistic, p
 
