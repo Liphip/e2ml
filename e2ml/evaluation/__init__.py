@@ -3,6 +3,7 @@ from ._visualization import plot_decision_boundary
 from ._performance_measures import *
 from ._performance_measures_II import *
 from ._error_estimation import *
+from ._one_sample_tests import *
 
 __all__ = [
     "zero_one_loss",
@@ -10,5 +11,6 @@ __all__ = [
     "plot_decision_boundary",
     "_performance_measures",
     "_performance_measures_II",
-    "_error_estimation"
+    "_error_estimation",
+    "_one_sample_tests"
 ]
