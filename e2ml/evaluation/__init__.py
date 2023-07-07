@@ -4,6 +4,7 @@ from ._performance_measures import *
 from ._performance_measures_II import *
 from ._error_estimation import *
 from ._one_sample_tests import *
+from ._paired_tests import *
 
 __all__ = [
     "zero_one_loss",
@@ -12,5 +13,6 @@ __all__ = [
     "_performance_measures",
     "_performance_measures_II",
     "_error_estimation",
-    "_one_sample_tests"
+    "_one_sample_tests",
+    "_paired_tests"
 ]
