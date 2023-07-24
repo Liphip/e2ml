@@ -58,18 +58,19 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
         check_consistent_length(X, y)
 
         # Fit `LabelEncoder` object as `self.label_encoder_`.
-        self.label_encoder_ = LabelEncoder()
-        self.label_encoder_.fit(y)
+        self.label_encoder_ = LabelEncoder().fit(y) # <-- SOLUTION
 
         # Raise `ValueError` if there are more than two classes.
+        # BEGIN SOLUTION
         if len(self.label_encoder_.classes_) > 2:
-            raise ValueError("Only binary classification is supported.")
+            raise ValueError("``BinaryLogisticRegression` can only deal with binary classification problems.")
+        # END SOLUTION
 
         # Transform `self.y_` using the fitted `self.label_encoder_`.
-        self.y_ = self.label_encoder_.transform(y)
+        y = self.label_encoder_.transform(y) # <-- SOLUTION
 
         # Initialize weights `w0`.
-        w0 = np.zeros(X.shape[1])
+        w0 = np.zeros(X.shape[1]) # <-- SOLUTION
 
         def loss_func(w):
             """
@@ -85,28 +86,40 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
                 Evaluated (scaled) loss.
             """
             # Compute predictions for given weights.
-            y_pred = expit(X @ w)
+            y_pred = expit(X @ w) # <-- SOLUTION
 
             # Compute binary cross entropy loss including regularization.
-            loss = binary_cross_entropy_loss(y, y_pred)
-
+            loss = binary_cross_entropy_loss(y_true=y, y_pred=y_pred)# <-- SOLUTION
             loss += 0.5 * len(X)**(-1) * self.lmbda * w.T @ w
 
             return loss
 
         def gradient_func(w):
             # Compute predictions for given weights.
-            y_pred = expit(X @ w)
+            y_pred = expit(X @ w)  # <-- SOLUTION
 
             # Compute gradient.
-            gradient = len(X)**(-1) * np.sum((y_pred - self.y_)[:, np.newaxis] * X, axis=0)
+            # BEGIN SOLUTION
+            gradient = np.sum((y_pred - y)[:, None] * X, axis=0)
             gradient += self.lmbda * w
+            # END SOLUTION
 
             return gradient
 
         # Use `scipy.optimize.minimize` with `BFGS` as `method` to optimize the loss function and store the result as
         # `self.w_`
-        self.w_ = minimize(loss_func, w0, method='BFGS', jac=gradient_func, options={'maxiter': self.maxiter}).x
+        # BEGIN SOLUTION
+        res = minimize(
+            fun=loss_func,
+            x0=w0,
+            jac=gradient_func,
+            method='L-BFGS-B',
+            options={
+                "maxiter": self.maxiter,
+            }
+        )
+        self.w_ = res.x
+        # END SOLUTION
 
         return self
 
@@ -129,8 +142,8 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
         self._check_n_features(X, reset=False)
 
         # Estimate and return conditional class probabilities.
-        y_pred = expit(X @ self.w_)
-        P = np.column_stack((1 - y_pred, y_pred))
+        y_pred = expit(X @ self.w_) # <-- SOLUTION
+        P = np.column_stack((1-y_pred, y_pred)) # <-- SOLUTION
         return P
 
     def predict(self, X):
@@ -148,9 +161,9 @@ class BinaryLogisticRegression(BaseEstimator, ClassifierMixin):
             Predicted class labels class.
         """
         # Predict class labels `y`.
-        y_pred = self.predict_proba(X).argmax(axis=1)
+        y = self.predict_proba(X).argmax(axis=1) # <-- SOLUTION
 
         # Re-transform predicted labels using `self.label_encoder_`.
-        y = self.label_encoder_.inverse_transform(y_pred)
+        y = self.label_encoder_.inverse_transform(y) # <-- SOLUTION
 
         return y
