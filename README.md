@@ -76,16 +76,90 @@ jupyter-notebook
 ```
 ## Experimentation
 
-TBD
+The experimentation package contains methods to design experiments. In particular, it contains methods to design
+experiments with the following design types:
+
+- Full Factorial Design
+- Halton Design
+- Latin Hypercube Design
+- One-Factor-at-a-Time Design
+
+The experimentation package also contains methods to perform optimizations with the following optimization methods:
+
+- Bayesian Optimization
 
 ## Evaluation
 
-TBD
+The evaluation package contains methods to evaluate experimental results. In particular, it contains methods to evaluate
+the following metrics:
+
+- Accuracy
+- Confusion Matrix
+- Cohen's Kappa
+- F1-Score
+- Receiver Operating Characteristic (ROC) Curve
+- Kullback-Leibler Divergence
+
+The evaluation package also contains methods to visualize experimental results. In particular, it contains the following
+visualization methods:
+
+- Lift Chart
+- ROC Curve
+- Plot decision boundary of a classifier
+
+The evaluation package further contains methods to perform error estimation with the following methods:
+
+- Cross-Validation
+
+It also contains loss functions of the following types:
+
+- Zero-One Loss
+- Binary Cross-Entropy Loss
+
+Finally, it contains methods to perform statistical tests with the following methods:
+
+- One-Sample Z-Test
+- One-Sample T-Test
+- Paired T-Test
+- Wilcoxon Signed-Rank Test
 
 ## Results
 
-TBD
+The results of the experiments are stored in the `results` directory. The results are stored in the following format:
 
+- `results`
+   - `csvs`: CSV files of the experiments
+      - `models`: Models of the experiments
+         - `final`: Final models
+            - `final_analysis[_traindata].csv`: Final analysis of the models [on the training data]
+         - `up_to_week_x`: Models trained on the data up to week _x_
+            - `z_models.csv`: Models with configuration _z_ on the data up to week _x_
+            - `hpo_results.csv`: Hyperparameter optimization results of the models on the data up to week _x_
+      - `worst_accuracies`: Worst accuracies of the experiments
+         - `up_to_week_x`: Worst accuracies of the models trained on the data up to week _x_
+   - `data_requests`: Data requests of the experiments
+      - `data_req_period_x.csv`: Data requests of period _x_
+   - `hpo_large_scale`: Results of the large-scale hyperparameter optimization
+      - `y_best_params.npy`: Best parameters of the Classifier _y_
+      - `y_hpo_results.csv`: Hyperparameter optimization results of the Classifier _y_
+   - `plots`: Plots of the experiments
+      - `data_requests`: Plots of data requests of the experiments
+         - `data_req_period_x.png`: Plot of data requests of period _x_
+      - `initial_data`: Plot of the initial data
+      - `probability_heatmaps`: Probability heatmaps of the experiments
+         - `up_to_week_x`: Probability heatmaps of the Classifiers on the data up to week _x_
+            - `y_probabilities.png`: Probability heatmap of the Classifier _y_ on the data up to week _x_
+      - `worst_values`: Worst values of the experiments
+         - `up_to_week_x`: Worst values of the models trained on the data up to week _x_
+            - `y_worst_values.png`: Worst values of the Classifier _y_ on the data up to week _x_
+
+## Data
+
+The data used in the experiments is stored in the `data` directory. The data is stored in the following format:
+
+- `data`
+   - `batchx_w_labels.csv`: Data of batch _x_ for user _w_ with labels
+   - `initial_molluscs_data.csv`: Initial data of the molluscs data set
 
 ## License
 
