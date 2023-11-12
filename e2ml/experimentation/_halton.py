@@ -22,16 +22,18 @@ def van_der_corput_sequence(n_max, base=2):
     check_scalar(n_max, name="n_max", target_type=int, min_val=1)
     check_scalar(base, name="base", target_type=int, min_val=2)
 
+    # BEGIN SOLUTION
     sequence = []
     for i in range(1, n_max + 1):
-        n_th_num, denom = 0.0, 1.0
+        n_th_number, denom = 0.0, 1.0
         while i > 0:
             i, remainder = divmod(i, base)
             denom *= base
-            n_th_num += remainder / denom
-        sequence.append(n_th_num)
-        
+            n_th_number += remainder / denom
+        sequence.append(n_th_number)
+
     return np.array(sequence)
+    # END SOLUTION
 
 
 def primes_from_2_to(n_max):
@@ -50,8 +52,16 @@ def primes_from_2_to(n_max):
     # Check parameters.
     check_scalar(n_max, name="n_max", target_type=int, min_val=2)
 
-    prime_numbers = [p for p in range(2, n_max + 1) if 0 not in [p % d for d in range(2, int(np.sqrt(p)) + 1)]]
+    # BEGIN SOLUTION
+    sieve = np.ones(n_max // 3 + (n_max % 6 == 2), dtype=bool)
+    for i in range(1, int(n_max**0.5) // 3 + 1):
+        if sieve[i]:
+            k = 3 * i + 1 | 1
+            sieve[k * k // 3 :: 2 * k] = False
+            sieve[k * (k - 2 * (i & 1) + 4) // 3 :: 2 * k] = False
+    prime_numbers = np.r_[2, 3, ((3 * np.nonzero(sieve)[0][1:] + 1) | 1)]
     return prime_numbers
+    # END SOLUTION
 
 
 def halton_unit(n_samples, n_dimensions):
@@ -73,17 +83,20 @@ def halton_unit(n_samples, n_dimensions):
     check_scalar(n_samples, name="n_samples", target_type=int, min_val=1)
     check_scalar(n_dimensions, name="n_dimensions", target_type=int, min_val=1)
 
-    # Generate primes with the number of primes equal to the number of dimensions.
-    primes = []
-    num = n_dimensions
-    while len(primes) < n_dimensions:
-        primes = primes_from_2_to(num)
-        num *= 10
+    # BEGIN SOLUTION
+    big_number = 10
+    while "Not enough prime numbers":
+        base = primes_from_2_to(big_number)[:n_dimensions]
+        if len(base) == n_dimensions:
+            break
+        big_number += 1000
 
-    primes = primes[:n_dimensions]
+    # Generate a sample using a Van der Corput sequence per dimension.
+    X = [van_der_corput_sequence(n_samples, int(dim)) for dim in base]
+    X = np.stack(X, axis=-1)
 
-    X = [van_der_corput_sequence(n_samples, base=p) for p in primes]
-    return np.array(X).T
+    return X
+    # END SOLUTION
 
 
 def halton(n_samples, n_dimensions, bounds=None):
@@ -115,6 +128,10 @@ def halton(n_samples, n_dimensions, bounds=None):
         bounds = np.zeros((n_dimensions, 2))
         bounds[:, 1] = 1
 
+    # BEGIN SOLUTION
     X = halton_unit(n_samples, n_dimensions)
-    X = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * X
-    return np.array(X)
+    x_min = bounds[:, 0]
+    x_max = bounds[:, 1]
+    X = X * (x_max - x_min) + x_min
+    return X
+    # END SOLUTION

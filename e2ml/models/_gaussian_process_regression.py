@@ -59,11 +59,11 @@ class GaussianProcessRegression(BaseEstimator, RegressorMixin):
 
         # Compute matrix `C_N` using the function `pairwise_kernels` with
         # `self.metric_dict_` as its parameters.
-        K = pairwise_kernels(self.X_, **self.metrics_dict_)
-        C_N = K + self.beta * np.eye(len(K))
+        K = pairwise_kernels(self.X_, **self.metrics_dict_) # <-- SOLUTION
+        C_N = K + self.beta * np.eye(len(K)) # <-- SOLUTION
 
         # Compute inverse `self.C_N_inv_` of matrix `C_N`.
-        self.C_N_inv_ = np.linalg.inv(C_N)
+        self.C_N_inv_ = np.linalg.pinv(C_N) # <-- SOLUTION
 
         return self
 
@@ -88,16 +88,15 @@ class GaussianProcessRegression(BaseEstimator, RegressorMixin):
 
         # Compute Gram matrix `K` between `X` and `self.X_` using the function
         # `pairwise_kernels` with `self.metric_dict_` as its parameters.
-        K = pairwise_kernels(X, self.X_, **self.metrics_dict_)
+        K = pairwise_kernels(X, self.X_, **self.metrics_dict_) # <-- SOLUTION
 
         # Compute mean predictions `means` for samples `X`.
-        means = K @ self.C_N_inv_ @ self.y_
+        means = K @ self.C_N_inv_ @ self.y_ # <-- SOLUTION
 
         if return_std:
-            # Compute standard deviations `stds` for predicted 'means'.
-            c = np.diag(pairwise_kernels(
-                X, **self.metrics_dict_) + self.beta)
-            stds = np.sqrt(c - np.diag(K @ self.C_N_inv_ @ K.T))
+            # Compute standard deviations `stds` for predicted means.
+            c = np.diag(pairwise_kernels(X, **self.metrics_dict_)) # <-- SOLUTION
+            stds = np.sqrt(c - np.diag(K @ self.C_N_inv_ @ K.T)) # <-- SOLUTION
             return means, stds
         else:
             return means

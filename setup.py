@@ -6,8 +6,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="e2ml",
     version="0.0.0",
-    author="Philip Laskowicz",
-    author_email="philip.laskowicz@student.uni-kassel.de",
+    author="Firstname Lastname",
+    author_email="author@email.com",
     description="This package contains methods implemented during the course"
                 "'Experimentation and Evaluation in Machine Learning' (E2ML)"
                 "of the 'Intelligent Embedded Systems' (IES) department at "
@@ -28,7 +28,6 @@ setuptools.setup(
         'matplotlib~=3.3.4',
         'iteration-utilities~=0.11.0',
         'jupyter~=1.0.0',
-        'pandas~=1.3.3',
-        'seaborn~=0.11.1'
+        'pandas~=1.3.3'
     ],
 )

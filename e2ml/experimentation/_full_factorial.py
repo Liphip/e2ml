@@ -50,7 +50,21 @@ def full_fac(levels):
                [ 0.,  3.,  2.],
                [ 1.,  3.,  2.]])
     """
-    # Previously implemented in _own_doe_method.py as it was not yet known
-    X = np.array(np.meshgrid(*[np.arange(0, level) for level in levels])).T.reshape(-1, len(levels))
+    # BEGIN SOLUTION
+    n = len(levels)  # number of factors
+    nb_lines = np.prod(levels)  # number of trial conditions
+    mat = np.zeros((nb_lines, n))
 
-    return X.astype(int)
+    level_repeat = 1
+    range_repeat = np.prod(levels)
+    for i in range(n):
+        range_repeat //= levels[i]
+        lvl = []
+        for j in range(levels[i]):
+            lvl += [j] * level_repeat
+        rng = lvl * range_repeat
+        level_repeat *= levels[i]
+        mat[:, i] = rng
+
+    return mat
+    # END SOLUTION

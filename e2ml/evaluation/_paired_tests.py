@@ -34,21 +34,15 @@ def t_test_paired(sample_data_1, sample_data_2=None, mu_0=0, test_type="two-side
     if sample_data_2 is not None:
         sample_data_2 = check_array(sample_data_2, ensure_2d=False)
 
-    """
-    # Compute differences.
-    if sample_data_2 is None:
-        sample_data_2 = np.zeros_like(sample_data_1)
-    sample_data_diff = sample_data_1 - sample_data_2
+    # BEGIN SOLUTION
 
-    # Perform one-sample t-test.
-    t_statistic, p = t_test_one_sample(sample_data_diff, mu_0=mu_0, test_type=test_type)
-
-    return t_statistic, p
-    """
-
+    # Compute differences of sample data.
     sample_data_diff = sample_data_1 if sample_data_2 is None else sample_data_1 - sample_data_2
 
+    # Perform one-sample t-test with computed differences as sample data.
     return t_test_one_sample(sample_data_diff, mu_0=mu_0, test_type=test_type)
+
+    # END SOLUTION
 
 
 def wilcoxon_signed_rank_test(sample_data_1, sample_data_2=None, test_type="two-sided"):
@@ -78,62 +72,47 @@ def wilcoxon_signed_rank_test(sample_data_1, sample_data_2=None, test_type="two-
     if test_type not in ["two-sided", "left-tail", "right-tail"]:
         raise ValueError("`test_type` must be in `['two-sided', 'left-tail', 'right-tail']`")
 
+    # BEGIN SOLUTION
+
+    # Compute differences of sample data.
     sample_data_diff = sample_data_1 if sample_data_2 is None else sample_data_1 - sample_data_2
 
-    # remove zero differences
+    # Remove zero differences.
     sample_data_diff = sample_data_diff[sample_data_diff != 0]
 
-    # remember pos/neg diffs
-    pos_diffs = np.where(sample_data_diff > 0)[0]
-    neg_diffs = np.where(sample_data_diff < 0)[0]
+    # Rank absolute differences.
+    ranks = stats.rankdata(np.abs(sample_data_diff), method="average")
 
-    # compute rank of absolute differences
-    ranks = stats.rankdata(np.abs(sample_data_diff))
+    # Compute positive rank sum as test statistic.
+    w_statistic = np.sum(ranks * (sample_data_diff > 0))
 
-    # test statistic: (marel: pos rank sum, franz: min between pos and neg rank sum)
-    pos_rank_sum = np.sum(ranks[pos_diffs])
-    neg_rank_sum = np.sum(ranks[neg_diffs])
-
-    w_statistic = pos_rank_sum
-    #w_statistic = np.min([pos_rank_sum, neg_rank_sum])
-
-    # set up sampling distribution
     sample_size = len(sample_data_diff)
-
-    p_left = 0
-    p_right = 0
-
-    if sample_size > 30: # assume normal distribution
-        # compute mu and sigma
-        mu = sample_size * (sample_size + 1) / 4
-        sigma = sample_size * (sample_size + 1) * (2 * sample_size + 1) / 24
-
-        # compute z_statistic
-        z_statistic = (w_statistic - mu) / np.sqrt(sigma)
-
-        # determine p_left and p_right
-        p_left = stats.norm.cdf(z_statistic)
-        p_right = 1 - p_left
-    elif sample_size <= 30: # use sampling distribution
-        # compute all possible combinations
+    if sample_size <= 30:
+        # Use exact sampling distribution to compute p-value.
         w_dict = {}
         for comb in itertools.product([0, 1], repeat=sample_size):
-            w_statistic_ = np.sum(np.array(comb) * ranks[None, :])
-            w_dict[w_statistic_] = w_dict.get(w_statistic_, 0) + 1
-        w_stat_arr = np.array(list(w_dict.keys()))
+            w_sum = np.sum(np.array(comb) * ranks[None, :])
+            w_dict[w_sum] = w_dict.get(w_sum, 0) + 1
+        w_arr = np.array(list(w_dict.keys()))
         p_arr = np.array(list(w_dict.values())) / 2 ** sample_size
+        p_left = p_arr[w_arr <= w_statistic].sum()
+        p_right = p_arr[w_arr >= w_statistic].sum()
+    else:
+        # Use normally approximated sampling distribution to compute p-value.
+        mu = (sample_size * (sample_size + 1))/4
+        sigma = np.sqrt((sample_size * (sample_size + 1) * (2 * sample_size + 1))/24)
+        z_statistic = (w_statistic - mu)/sigma
+        p_left = stats.norm.cdf(z_statistic)
+        p_right = 1 - p_left
 
-        # determine p_left and p_right using the above distribution
-        p_left = p_arr[w_stat_arr <= w_statistic].sum()
-        p_right = p_arr[w_stat_arr >= w_statistic].sum()
-
-    # determine p-value based on test_type
+    # Compute p-value for the respective test type.
     if test_type == "two-sided":
-        p = 2 * np.min([p_left, p_right])
+        p = 2 * np.min((p_left, p_right))
     elif test_type == "left-tail":
         p = p_left
-    elif test_type == "right-tail":
+    else:
         p = p_right
 
     return w_statistic, p
 
+    # END SOLUTION
